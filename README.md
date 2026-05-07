@@ -4,6 +4,7 @@
 [![GitHub release](https://img.shields.io/github/v/release/mburlac/empiric-apps-markdown-viewer-chrome)](https://github.com/mburlac/empiric-apps-markdown-viewer-chrome/releases/latest)
 [![Manifest V3](https://img.shields.io/badge/Manifest-V3-4285F4)](https://developer.chrome.com/docs/extensions/develop/migrate)
 [![Privacy: local-only](https://img.shields.io/badge/Privacy-local--only-brightgreen)](#privacy)
+[![Made by Empirica Apps](https://img.shields.io/badge/Made_by-Empirica_Apps-0969da)](https://empiricapps.com)
 
 A Chrome extension that renders Markdown files as beautifully styled pages — themes, syntax highlighting, table of contents, Mermaid diagrams, and KaTeX math. By [empiricapps.com](https://empiricapps.com).
 
@@ -62,4 +63,12 @@ See [PUBLISHING.md](./PUBLISHING.md) for Chrome Web Store submission steps. Buil
 
 ## License & credits
 
-[MIT](LICENSE), built by [empiricapps.com](https://empiricapps.com). Bundled vendor libraries retain their own licenses (marked: MIT, DOMPurify: Apache 2.0 / MPL 2.0, highlight.js: BSD-3-Clause, Mermaid: MIT, KaTeX: MIT) — see `vendor/`.
+[MIT](LICENSE), built by **[Empirica Apps](https://empiricapps.com)** — visit the site for more tools and projects. Bundled vendor libraries retain their own licenses (marked: MIT, DOMPurify: Apache 2.0 / MPL 2.0, highlight.js: BSD-3-Clause, Mermaid: MIT, KaTeX: MIT) — see `vendor/`.
+
+---
+
+<p align="center">
+  <a href="https://empiricapps.com">
+    <strong>empiricapps.com</strong>
+  </a>
+</p>
