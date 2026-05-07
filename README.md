@@ -1,5 +1,7 @@
 # Markdown Viewer
 
+[![Chrome Web Store](https://img.shields.io/chrome-web-store/v/ebjpbhdmamfighbdiagddohfmpodbbnd?label=Chrome%20Web%20Store&color=4285F4)](https://chromewebstore.google.com/detail/ebjpbhdmamfighbdiagddohfmpodbbnd)
+[![Users](https://img.shields.io/chrome-web-store/users/ebjpbhdmamfighbdiagddohfmpodbbnd)](https://chromewebstore.google.com/detail/ebjpbhdmamfighbdiagddohfmpodbbnd)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![GitHub release](https://img.shields.io/github/v/release/mburlac/empiric-apps-markdown-viewer-chrome)](https://github.com/mburlac/empiric-apps-markdown-viewer-chrome/releases/latest)
 [![Manifest V3](https://img.shields.io/badge/Manifest-V3-4285F4)](https://developer.chrome.com/docs/extensions/develop/migrate)
@@ -10,7 +12,9 @@ A Chrome extension that renders Markdown files as beautifully styled pages — t
 
 ## Install
 
-**From source (recommended for development):**
+**[👉 Install from Chrome Web Store](https://chromewebstore.google.com/detail/ebjpbhdmamfighbdiagddohfmpodbbnd)** — recommended for everyday use; auto-updates with each release.
+
+**From source (for development):**
 
 1. Clone this repo
 2. Open `chrome://extensions`
@@ -27,6 +31,8 @@ Open any `.md` / `.markdown` file — local (`file://`) or remote (`http(s)://`)
 ## Privacy
 
 All rendering happens locally in your browser. No data is sent to any server. No analytics, no telemetry, no remote code execution — every dependency is bundled under `vendor/`.
+
+Full policy: <https://www.empiricapps.com/markdown-viewer-privacy>
 
 ## Testing
 
