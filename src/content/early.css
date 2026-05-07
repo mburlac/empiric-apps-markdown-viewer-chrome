@@ -1,0 +1,5 @@
+html[data-md-detected]:not([data-md-rendered]) body > pre { visibility: hidden; }
+html[data-md-detected] { background: #fbfbf9; }
+@media (prefers-color-scheme: dark) {
+  html[data-md-detected] { background: #0d1117; }
+}

@@ -1,0 +1,100 @@
+:root {
+  --bg: #fbfbf9;
+  --surface: #ffffff;
+  --text: #1f2328;
+  --muted: #59636e;
+  --heading: #0e1116;
+  --border: #d0d7de;
+  --accent: #0969da;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1117; --surface: #161b22; --text: #e6edf3;
+    --muted: #8b949e; --heading: #f0f6fc; --border: #30363d; --accent: #58a6ff;
+  }
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 15px/1.6 -apple-system, BlinkMacSystemFont, "Inter",
+        "Segoe UI", Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+main { max-width: 560px; margin: 3.5rem auto; padding: 0 2rem; }
+
+header {
+  display: flex; align-items: center; gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+header h1 {
+  font-size: 1.45rem; margin: 0 0 .1em;
+  color: var(--heading);
+  letter-spacing: -0.015em;
+}
+.sub { margin: 0; color: var(--muted); font-size: 13px; }
+
+section { display: flex; flex-direction: column; gap: 1.1rem; }
+
+.field {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1rem;
+  padding: .75rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+}
+.field.checkbox { justify-content: flex-start; cursor: pointer; }
+.label { font-weight: 500; color: var(--heading); }
+
+select {
+  min-width: 210px;
+  padding: .45em .7em;
+  border-radius: 7px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+select:focus { outline: 2px solid var(--accent); outline-offset: 1px; }
+input[type="checkbox"] { margin-right: .5em; accent-color: var(--accent); width: 16px; height: 16px; }
+
+footer {
+  margin-top: 2.5rem;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 1rem;
+  color: var(--muted); font-size: 12.5px;
+  padding-top: 1.2rem;
+  border-top: 1px solid var(--border);
+}
+.hint { max-width: 400px; }
+.hint code {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: .95em;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: .05em .35em;
+  border-radius: 4px;
+}
+.saved {
+  color: var(--accent); font-weight: 600;
+  opacity: 1; transition: opacity .4s ease;
+}
+.saved[hidden] { display: inline; opacity: 0; }
+
+.brand {
+  margin-top: 1.5rem;
+  display: flex; align-items: center; gap: .4em;
+  justify-content: center;
+  color: var(--muted); font-size: 12.5px;
+}
+.brand a {
+  color: var(--accent); text-decoration: none;
+  font-weight: 500;
+}
+.brand a:hover { text-decoration: underline; }
+.brand .version { color: var(--muted); }

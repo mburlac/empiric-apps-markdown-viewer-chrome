@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Markdown Viewer — Options</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <main>
+    <header>
+      <img src="../../icons/icon-48.png" alt="" width="40" height="40">
+      <div>
+        <h1>Markdown Viewer</h1>
+        <p class="sub">Settings sync across your Chrome profile.</p>
+      </div>
+    </header>
+
+    <section>
+      <label class="field">
+        <span class="label">Theme</span>
+        <select id="theme">
+          <option value="auto">Auto (follow system)</option>
+          <option value="github-light">GitHub Light</option>
+          <option value="github-dark">GitHub Dark</option>
+          <option value="sepia">Sepia</option>
+          <option value="dracula">Dracula</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span class="label">Reading width</span>
+        <select id="maxWidth">
+          <option value="narrow">Narrow · 620px</option>
+          <option value="normal">Normal · 720px</option>
+          <option value="wide">Wide · 860px</option>
+          <option value="full">Full · fill window</option>
+        </select>
+      </label>
+
+      <label class="field">
+        <span class="label">Font size</span>
+        <select id="fontSize">
+          <option value="small">Small · 15px</option>
+          <option value="medium">Medium · 17px</option>
+          <option value="large">Large · 19px</option>
+        </select>
+      </label>
+
+      <label class="field checkbox">
+        <input type="checkbox" id="showTOC">
+        <span>Show table of contents (needs ≥2 headings and ≥1024px width)</span>
+      </label>
+
+      <label class="field checkbox">
+        <input type="checkbox" id="enableMermaid">
+        <span>Render Mermaid diagrams (<code>```mermaid</code> code blocks)</span>
+      </label>
+
+      <label class="field checkbox">
+        <input type="checkbox" id="enableKatex">
+        <span>Render math with KaTeX (<code>$…$</code> and <code>$$…$$</code>)</span>
+      </label>
+    </section>
+
+    <footer>
+      <span class="hint">Toggle raw / rendered: click the toolbar icon, or set a shortcut at <code>chrome://extensions/shortcuts</code>.</span>
+      <span class="saved" id="saved" hidden>Saved</span>
+    </footer>
+
+    <div class="brand">
+      <span>Built by</span>
+      <a href="https://empiricapps.com" target="_blank" rel="noopener noreferrer">empiricapps.com</a>
+      <span class="version">· v0.2.0</span>
+    </div>
+  </main>
+  <script src="options.js"></script>
+</body>
+</html>
