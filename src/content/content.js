@@ -44,24 +44,47 @@
     return null;
   }
 
-  async function getRaw() {
-    let r = readBodyText();
-    if (r) { log('source:', r.source); return r.text; }
-
-    if (document.readyState !== 'complete') {
-      log('body empty at document_end, waiting for window load');
-      await new Promise(res => window.addEventListener('load', res, { once: true }));
-      r = readBodyText();
-      if (r) { log('source:', r.source, '(after load)'); return r.text; }
-    }
-
-    log('body still empty, asking service worker to fetch');
+  async function swFetch() {
     try {
       const res = await chrome.runtime.sendMessage({ type: 'FETCH_TEXT', url: location.href });
-      if (res && res.ok) { log('source: sw fetch, length', res.text.length); return res.text; }
-      warn('sw fetch failed:', res && res.error);
+      if (res && res.ok && res.text && res.text.trim()) return res.text;
+      if (res && !res.ok) warn('sw fetch failed:', res.error);
       return null;
     } catch (e) { errLog('sendMessage failed:', e); return null; }
+  }
+
+  async function waitLoadThenRead() {
+    if (document.readyState !== 'complete') {
+      await new Promise(res => {
+        if (document.readyState === 'complete') return res();
+        window.addEventListener('load', res, { once: true });
+      });
+    }
+    const r = readBodyText();
+    return r ? r.text : null;
+  }
+
+  async function getRaw() {
+    const r = readBodyText();
+    if (r) { log('source:', r.source); return r.text; }
+
+    log('body empty, racing SW fetch and window.load');
+    return new Promise(resolve => {
+      let pending = 2;
+      let done = false;
+      const settle = (text, src) => {
+        if (done) return;
+        if (text && text.trim()) {
+          done = true;
+          log('source:', src);
+          resolve(text);
+          return;
+        }
+        if (--pending === 0) resolve(null);
+      };
+      swFetch().then(t => settle(t, 'sw fetch'));
+      waitLoadThenRead().then(t => settle(t, 'body (after load)'));
+    });
   }
 
   function resolveHljsTheme(theme) {
