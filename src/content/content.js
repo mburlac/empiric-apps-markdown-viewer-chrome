@@ -12,6 +12,8 @@
     showTOC: false,
     tocWidth: 248,
     tocOpen: true,
+    autoReload: false,
+    autoReloadInterval: 1500,
     enableMermaid: false,
     enableKatex: false
   };
@@ -21,8 +23,14 @@
     'github-light': 'github',
     'github-dark': 'github-dark',
     'sepia': 'stackoverflow-light',
-    'dracula': 'dracula'
+    'dracula': 'dracula',
+    'one-dark': 'atom-one-dark',
+    'tokyo-night': 'tokyo-night-dark',
+    'nord': 'nord',
+    'solarized-dark': 'solarized-dark',
+    'solarized-light': 'solarized-light'
   };
+  const DARK_THEMES = new Set(['github-dark', 'dracula', 'one-dark', 'tokyo-night', 'nord', 'solarized-dark']);
 
   let rawText = '';
   let currentSettings = { ...DEFAULTS };
@@ -182,6 +190,36 @@
         --md-border-strong: #6272a4; --md-link: #8be9fd; --md-link-hover: #bafff9;
         --md-code-bg: #343746; --md-pre-bg: #21222c; --md-accent: #bd93f9;
       }
+      :root[data-md-theme="one-dark"] {
+        --md-bg: #282c34; --md-surface: #2c313a; --md-text: #abb2bf;
+        --md-muted: #5c6370; --md-heading: #e6e6e6; --md-border: #3e4451;
+        --md-border-strong: #4b5263; --md-link: #61afef; --md-link-hover: #8cc4ff;
+        --md-code-bg: #2c313a; --md-pre-bg: #21252b; --md-accent: #61afef;
+      }
+      :root[data-md-theme="tokyo-night"] {
+        --md-bg: #1a1b26; --md-surface: #24283b; --md-text: #c0caf5;
+        --md-muted: #565f89; --md-heading: #ffffff; --md-border: #2e3349;
+        --md-border-strong: #414868; --md-link: #7aa2f7; --md-link-hover: #9eb8ff;
+        --md-code-bg: #24283b; --md-pre-bg: #16161e; --md-accent: #bb9af7;
+      }
+      :root[data-md-theme="nord"] {
+        --md-bg: #2e3440; --md-surface: #3b4252; --md-text: #d8dee9;
+        --md-muted: #7b8494; --md-heading: #eceff4; --md-border: #434c5e;
+        --md-border-strong: #4c566a; --md-link: #88c0d0; --md-link-hover: #a3d4e3;
+        --md-code-bg: #3b4252; --md-pre-bg: #292e39; --md-accent: #88c0d0;
+      }
+      :root[data-md-theme="solarized-dark"] {
+        --md-bg: #002b36; --md-surface: #073642; --md-text: #93a1a1;
+        --md-muted: #586e75; --md-heading: #fdf6e3; --md-border: #0a4a5a;
+        --md-border-strong: #1d5f70; --md-link: #268bd2; --md-link-hover: #3aa3e8;
+        --md-code-bg: #073642; --md-pre-bg: #00212b; --md-accent: #268bd2;
+      }
+      :root[data-md-theme="solarized-light"] {
+        --md-bg: #fdf6e3; --md-surface: #eee8d5; --md-text: #586e75;
+        --md-muted: #93a1a1; --md-heading: #073642; --md-border: #e6dfca;
+        --md-border-strong: #c8c2af; --md-link: #268bd2; --md-link-hover: #1a6ca8;
+        --md-code-bg: #eee8d5; --md-pre-bg: #f5efd9; --md-accent: #268bd2;
+      }
 
       html, body { margin: 0; padding: 0; background: var(--md-bg); color: var(--md-text); }
       body {
@@ -240,6 +278,7 @@
         border: 1px solid var(--md-border);
       }
       .md-root pre {
+        position: relative;
         margin: 1.4em 0; padding: 1.1em 1.25em;
         background: var(--md-pre-bg); border: 1px solid var(--md-border);
         border-radius: 10px; overflow-x: auto;
@@ -250,6 +289,37 @@
         background: transparent !important; border: none; padding: 0; font-size: inherit;
       }
       .md-root pre code.hljs { background: transparent !important; padding: 0; }
+      .md-copy-btn {
+        position: absolute;
+        top: 0.5em; right: 0.5em;
+        padding: 0.25em 0.6em;
+        font: 600 0.75em/1.2 var(--md-font-body);
+        color: var(--md-muted);
+        background: color-mix(in srgb, var(--md-surface) 92%, transparent);
+        border: 1px solid var(--md-border);
+        border-radius: 5px;
+        cursor: pointer;
+        opacity: 0;
+        transform: translateY(-1px);
+        transition: opacity .15s ease, color .15s ease, background .15s ease, border-color .15s ease;
+        backdrop-filter: blur(4px);
+      }
+      .md-root pre:hover .md-copy-btn,
+      .md-copy-btn:focus-visible { opacity: 1; }
+      .md-copy-btn:hover {
+        color: var(--md-text);
+        border-color: var(--md-border-strong);
+        background: var(--md-surface);
+      }
+      .md-copy-btn.copied {
+        color: #fff;
+        background: var(--md-accent);
+        border-color: var(--md-accent);
+        opacity: 1;
+      }
+      @media (hover: none) {
+        .md-copy-btn { opacity: 0.65; }
+      }
 
       .md-root blockquote {
         margin: 1.4em 0; padding: 0.3em 1.2em; color: var(--md-muted);
@@ -465,6 +535,28 @@
         .md-toc-toggle { display: none; }
       }
 
+      /* Auto-reload watching indicator */
+      :root.md-watching::after {
+        content: '';
+        position: fixed;
+        top: 1rem; right: 1rem;
+        width: 9px; height: 9px;
+        border-radius: 50%;
+        background: #22c55e;
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.55);
+        animation: md-watch-pulse 2s ease-out infinite;
+        z-index: 100;
+        pointer-events: none;
+      }
+      @keyframes md-watch-pulse {
+        0%   { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.55); }
+        70%  { box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        :root.md-watching::after { animation: none; }
+      }
+
       /* Error banner */
       .md-error {
         position: fixed; top: 1rem; left: 50%; transform: translateX(-50%);
@@ -654,7 +746,35 @@
     if (typeof hljs === 'undefined') return;
     root.querySelectorAll('pre code').forEach(el => {
       if (el.classList.contains('language-mermaid')) return;
+      const hasLang = Array.from(el.classList).some(c => c.startsWith('language-'));
+      if (!hasLang) return;
       try { hljs.highlightElement(el); } catch (e) { warn('hljs failed:', e); }
+    });
+  }
+
+  function addCopyButtons(root) {
+    root.querySelectorAll('pre').forEach(pre => {
+      const code = pre.querySelector('code');
+      if (!code || code.classList.contains('language-mermaid')) return;
+      if (pre.querySelector(':scope > .md-copy-btn')) return;
+      const btn = document.createElement('button');
+      btn.className = 'md-copy-btn';
+      btn.type = 'button';
+      btn.setAttribute('aria-label', 'Copy code');
+      btn.textContent = 'Copy';
+      btn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        try {
+          await navigator.clipboard.writeText(code.innerText);
+          btn.textContent = 'Copied';
+          btn.classList.add('copied');
+          setTimeout(() => {
+            btn.textContent = 'Copy';
+            btn.classList.remove('copied');
+          }, 1200);
+        } catch (err) { warn('clipboard write failed:', err); }
+      });
+      pre.appendChild(btn);
     });
   }
 
@@ -678,9 +798,9 @@
     document.head.appendChild(l);
   }
   function mermaidThemeFor(t) {
-    if (t === 'github-dark' || t === 'dracula') return 'dark';
-    if (t === 'sepia') return 'neutral';
     if (t === 'auto') return matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'default';
+    if (t === 'sepia') return 'neutral';
+    if (DARK_THEMES.has(t)) return 'dark';
     return 'default';
   }
 
@@ -747,6 +867,7 @@
     addHeadingIds(root);
     rewriteUrls(root, location.href);
     highlightCode(root);
+    addCopyButtons(root);
 
     setTocSpace(0);
     document.documentElement.removeAttribute('data-md-toc-open');
@@ -798,6 +919,45 @@
     setTimeout(() => b.remove(), 3500);
   }
 
+  let pollTimer = null;
+  let pollInFlight = false;
+
+  async function pollOnce() {
+    if (pollInFlight || document.hidden || mode !== 'rendered') return;
+    pollInFlight = true;
+    try {
+      const res = await chrome.runtime.sendMessage({ type: 'FETCH_TEXT', url: location.href });
+      if (res && res.ok && typeof res.text === 'string' && res.text !== rawText) {
+        log('auto-reload: change detected, re-rendering');
+        const scrollY = window.scrollY;
+        rawText = res.text;
+        renderArticle();
+        window.scrollTo({ top: scrollY, left: 0, behavior: 'instant' });
+      }
+    } catch (e) {
+      warn('auto-reload poll failed:', e);
+    } finally {
+      pollInFlight = false;
+    }
+  }
+
+  function startAutoReload() {
+    if (pollTimer) return;
+    const interval = Math.max(500, Number(currentSettings.autoReloadInterval) || 1500);
+    log('auto-reload: start, interval', interval, 'ms');
+    pollTimer = setInterval(pollOnce, interval);
+    document.documentElement.classList.add('md-watching');
+  }
+
+  function stopAutoReload() {
+    if (pollTimer) {
+      clearInterval(pollTimer);
+      pollTimer = null;
+      log('auto-reload: stop');
+    }
+    document.documentElement.classList.remove('md-watching');
+  }
+
   async function boot() {
     try {
       const [raw, settings] = await Promise.all([getRaw(), getSettings()]);
@@ -815,6 +975,11 @@
       renderArticle();
       chrome.runtime.sendMessage({ type: 'DETECTED' }).catch(() => {});
       log('rendered, settings:', settings);
+
+      if (currentSettings.autoReload) startAutoReload();
+      document.addEventListener('visibilitychange', () => {
+        if (currentSettings.autoReload && !document.hidden) pollOnce();
+      });
 
       chrome.storage.onChanged.addListener((changes) => {
         let reRender = false;
@@ -834,6 +999,12 @@
           }
           else if (k === 'tocOpen') {
             if (document.querySelector('.md-toc')) setTocOpen(!!nv, false);
+          }
+          else if (k === 'autoReload') {
+            if (nv) startAutoReload(); else stopAutoReload();
+          }
+          else if (k === 'autoReloadInterval') {
+            if (currentSettings.autoReload) { stopAutoReload(); startAutoReload(); }
           }
         }
         if (reRender && mode === 'rendered') renderArticle();

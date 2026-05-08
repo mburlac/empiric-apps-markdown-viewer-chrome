@@ -3,10 +3,11 @@ const DEFAULTS = {
   maxWidth: 'full',
   fontSize: 'medium',
   showTOC: false,
+  autoReload: false,
   enableMermaid: false,
   enableKatex: false
 };
-const IDS = ['theme', 'maxWidth', 'fontSize', 'showTOC', 'enableMermaid', 'enableKatex'];
+const IDS = ['theme', 'maxWidth', 'fontSize', 'showTOC', 'autoReload', 'enableMermaid', 'enableKatex'];
 
 async function load() {
   const s = await chrome.storage.sync.get(DEFAULTS);

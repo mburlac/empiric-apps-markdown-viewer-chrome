@@ -50,13 +50,15 @@ Requires ImageMagick (`brew install imagemagick`).
 
 ## Features
 
-- 5 themes: Auto, GitHub Light, GitHub Dark, Sepia, Dracula
+- **10 themes**: Auto, GitHub Light/Dark, Sepia, Dracula, One Dark, Tokyo Night, Nord, Solarized Dark/Light
+- **Auto-reload** when the file changes — live preview while editing in your editor
+- **Copy code** button on every code block (hover to reveal)
 - Syntax highlighting (highlight.js, ~35 languages)
-- TOC sidebar with active-heading tracking
+- Resizable, collapsible TOC sidebar with active-heading tracking
 - Mermaid diagrams (lazy-loaded)
 - KaTeX math (lazy-loaded)
 - Toggle rendered / raw via toolbar icon
-- Configurable reading width and font size
+- Configurable reading width (full / wide / normal / narrow) and font size
 - Works on `file://`, `http://`, and `https://`
 
 ## Publishing
