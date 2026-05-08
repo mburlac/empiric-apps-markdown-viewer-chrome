@@ -10,23 +10,18 @@ const FIXTURE = fs.readFileSync(path.join(ROOT, 'tests/fixtures/showcase.md'), '
 const OUT_DIR = path.join(ROOT, 'dist/screenshots');
 fs.mkdirSync(OUT_DIR, { recursive: true });
 
-// Escape for embedding in <script type="text/markdown">
 const escapedMd = FIXTURE.replace(/<\/script>/gi, '<\\/script>');
 
+// 5 hero shots (top of document) — each shows a theme + optional features.
 const THEMES = [
-  // Shot 1: hero — light theme, top of page with TOC and overview
-  { key: 'github-light', hljs: 'github', mermaid: 'default', scrollTo: null, showTOC: true },
-  // Shot 2: dark theme showing flowchart diagram
-  { key: 'github-dark',  hljs: 'github-dark', mermaid: 'dark', scrollTo: 'architecture-flowchart', showTOC: true },
-  // Shot 3: dracula theme with code highlighting
-  { key: 'dracula',      hljs: 'dracula', mermaid: 'dark', scrollTo: 'code-many-languages', showTOC: true, suffix: '-code' },
-  // Shot 4: sepia reading mode with math
-  { key: 'sepia',        hljs: 'stackoverflow-light', mermaid: 'neutral', scrollTo: 'math-when-katex-is-enabled', showTOC: false },
-  // Shot 5: github-dark showing pie chart + user journey
-  { key: 'github-dark',  hljs: 'github-dark', mermaid: 'dark', scrollTo: 'pie-chart-bundle-composition', showTOC: true, suffix: '-diagrams' }
+  { key: 'github-light',    hljs: 'github',           mermaid: 'default', scrollTo: null, showTOC: true,  watching: false },
+  { key: 'tokyo-night',     hljs: 'tokyo-night-dark', mermaid: 'dark',    scrollTo: null, showTOC: true,  watching: false },
+  { key: 'one-dark',        hljs: 'atom-one-dark',    mermaid: 'dark',    scrollTo: null, showTOC: true,  watching: false },
+  { key: 'solarized-light', hljs: 'solarized-light',  mermaid: 'default', scrollTo: null, showTOC: true,  watching: false },
+  // Final shot: dark theme + auto-reload indicator visible (top-right pulsing dot)
+  { key: 'github-dark',     hljs: 'github-dark',      mermaid: 'dark',    scrollTo: null, showTOC: true,  watching: true, suffix: '-watching' }
 ];
 
-// Base CSS extracted from content.js — duplicated here so previews render without the extension
 const BASE_CSS = `
 :root {
   --md-bg: #fbfbf9; --md-surface: #ffffff; --md-text: #1f2328;
@@ -59,6 +54,36 @@ const BASE_CSS = `
   --md-border-strong: #6272a4; --md-link: #8be9fd; --md-link-hover: #bafff9;
   --md-code-bg: #343746; --md-pre-bg: #21222c; --md-accent: #bd93f9;
 }
+:root[data-md-theme="one-dark"] {
+  --md-bg: #282c34; --md-surface: #2c313a; --md-text: #abb2bf;
+  --md-muted: #5c6370; --md-heading: #e6e6e6; --md-border: #3e4451;
+  --md-border-strong: #4b5263; --md-link: #61afef; --md-link-hover: #8cc4ff;
+  --md-code-bg: #2c313a; --md-pre-bg: #21252b; --md-accent: #61afef;
+}
+:root[data-md-theme="tokyo-night"] {
+  --md-bg: #1a1b26; --md-surface: #24283b; --md-text: #c0caf5;
+  --md-muted: #565f89; --md-heading: #ffffff; --md-border: #2e3349;
+  --md-border-strong: #414868; --md-link: #7aa2f7; --md-link-hover: #9eb8ff;
+  --md-code-bg: #24283b; --md-pre-bg: #16161e; --md-accent: #bb9af7;
+}
+:root[data-md-theme="nord"] {
+  --md-bg: #2e3440; --md-surface: #3b4252; --md-text: #d8dee9;
+  --md-muted: #7b8494; --md-heading: #eceff4; --md-border: #434c5e;
+  --md-border-strong: #4c566a; --md-link: #88c0d0; --md-link-hover: #a3d4e3;
+  --md-code-bg: #3b4252; --md-pre-bg: #292e39; --md-accent: #88c0d0;
+}
+:root[data-md-theme="solarized-dark"] {
+  --md-bg: #002b36; --md-surface: #073642; --md-text: #93a1a1;
+  --md-muted: #586e75; --md-heading: #fdf6e3; --md-border: #0a4a5a;
+  --md-border-strong: #1d5f70; --md-link: #268bd2; --md-link-hover: #3aa3e8;
+  --md-code-bg: #073642; --md-pre-bg: #00212b; --md-accent: #268bd2;
+}
+:root[data-md-theme="solarized-light"] {
+  --md-bg: #fdf6e3; --md-surface: #eee8d5; --md-text: #586e75;
+  --md-muted: #93a1a1; --md-heading: #073642; --md-border: #e6dfca;
+  --md-border-strong: #c8c2af; --md-link: #268bd2; --md-link-hover: #1a6ca8;
+  --md-code-bg: #eee8d5; --md-pre-bg: #f5efd9; --md-accent: #268bd2;
+}
 html, body { margin: 0; padding: 0; background: var(--md-bg); color: var(--md-text); }
 body { font-family: var(--md-font-body); font-size: var(--md-font-size); line-height: 1.7;
   text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased;
@@ -78,12 +103,17 @@ body { font-family: var(--md-font-body); font-size: var(--md-font-size); line-he
   border-bottom: 1px solid color-mix(in srgb, var(--md-link) 35%, transparent); }
 .md-root code { font-family: var(--md-font-mono); font-size: 0.87em; background: var(--md-code-bg);
   padding: 0.15em 0.4em; border-radius: 5px; border: 1px solid var(--md-border); }
-.md-root pre { margin: 1.4em 0; padding: 1.1em 1.25em; background: var(--md-pre-bg);
+.md-root pre { position: relative; margin: 1.4em 0; padding: 1.1em 1.25em; background: var(--md-pre-bg);
   border: 1px solid var(--md-border); border-radius: 10px; overflow-x: auto;
   line-height: 1.55; font-size: 0.9em; }
 .md-root pre code { font-family: var(--md-font-mono); background: transparent !important;
   border: none; padding: 0; font-size: inherit; }
 .md-root pre code.hljs { background: transparent !important; padding: 0; }
+.md-copy-btn { position: absolute; top: 0.5em; right: 0.5em; padding: 0.25em 0.6em;
+  font: 600 0.75em/1.2 var(--md-font-body); color: var(--md-muted);
+  background: color-mix(in srgb, var(--md-surface) 92%, transparent);
+  border: 1px solid var(--md-border); border-radius: 5px; cursor: pointer;
+  opacity: 1; backdrop-filter: blur(4px); }
 .md-root blockquote { margin: 1.4em 0; padding: 0.3em 1.2em; color: var(--md-muted);
   border-left: 3px solid var(--md-accent);
   background: color-mix(in srgb, var(--md-accent) 5%, transparent);
@@ -102,7 +132,6 @@ body { font-family: var(--md-font-body); font-size: var(--md-font-size); line-he
 .md-root .mermaid { margin: 1.4em 0; padding: 1em; background: var(--md-surface);
   border: 1px solid var(--md-border); border-radius: 10px; overflow-x: auto; text-align: center; }
 .md-root .mermaid svg { display: inline-block; max-width: 100%; height: auto; }
-/* TOC — narrower for screenshots so it doesn't overlap body */
 .md-toc { position: fixed; top: 2rem; left: 1rem; width: 210px;
   max-height: calc(100vh - 4rem); overflow-y: auto;
   font-family: var(--md-font-body); font-size: 13px; line-height: 1.5;
@@ -121,12 +150,18 @@ body { font-family: var(--md-font-body); font-size: var(--md-font-size); line-he
 .md-toc a { text-decoration: none; border: none; display: block;
   padding: 0.3em 0.65em; margin-left: -0.65em; border-left: 3px solid transparent;
   border-radius: 0 6px 6px 0; color: inherit; }
+:root.md-watching::after {
+  content: ''; position: fixed; top: 1rem; right: 1rem;
+  width: 9px; height: 9px; border-radius: 50%; background: #22c55e;
+  box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.25); z-index: 100; pointer-events: none;
+}
 `;
 
 function htmlFor(theme) {
   const themeAttr = theme.key === 'auto' ? '' : ` data-md-theme="${theme.key}"`;
+  const watchingClass = theme.watching ? ' class="md-watching"' : '';
   return `<!doctype html>
-<html lang="en"${themeAttr}>
+<html lang="en"${themeAttr}${watchingClass}>
 <head>
 <meta charset="utf-8">
 <title>Markdown Viewer Preview — ${theme.key}${theme.suffix || ''}</title>
@@ -168,9 +203,23 @@ ${theme.showTOC ? '<nav class="md-toc" id="toc"></nav>' : ''}
     used.set(id, 1); h.id = id;
   });
 
+  // Highlight only blocks with explicit language (matches extension behavior)
   root.querySelectorAll('pre code').forEach(el => {
     if (el.classList.contains('language-mermaid')) return;
+    const hasLang = Array.from(el.classList).some(c => c.startsWith('language-'));
+    if (!hasLang) return;
     try { hljs.highlightElement(el); } catch(e) {}
+  });
+
+  // Add Copy buttons (visible always for screenshot purposes)
+  root.querySelectorAll('pre').forEach(pre => {
+    const code = pre.querySelector('code');
+    if (!code || code.classList.contains('language-mermaid')) return;
+    const btn = document.createElement('button');
+    btn.className = 'md-copy-btn';
+    btn.type = 'button';
+    btn.textContent = 'Copy';
+    pre.appendChild(btn);
   });
 
   root.querySelectorAll('pre > code.language-mermaid').forEach(code => {
@@ -201,7 +250,6 @@ ${theme.showTOC ? '<nav class="md-toc" id="toc"></nav>' : ''}
     });
   }
 
-  // Build TOC
   const tocEl = document.getElementById('toc');
   if (tocEl) {
     const headings = root.querySelectorAll('h2, h3');
@@ -221,10 +269,8 @@ ${theme.showTOC ? '<nav class="md-toc" id="toc"></nav>' : ''}
     tocEl.appendChild(ul);
   }
 
-  // Wait for late paints (mermaid SVG, katex fonts)
   await new Promise(r => setTimeout(r, 3500));
 
-  // Scroll to target section (do last, after mermaid rendered)
   const scrollTarget = ${JSON.stringify(theme.scrollTo)};
   if (scrollTarget) {
     const target = document.getElementById(scrollTarget);
