@@ -1,0 +1,61 @@
+{
+  "manifest_version": 3,
+  "name": "Markdown Viewer",
+  "version": "0.4.0",
+  "description": "Render Markdown files as styled HTML with themes, syntax highlighting, TOC, Mermaid and KaTeX.",
+  "author": "Empirica Apps",
+  "homepage_url": "https://empiricapps.com",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "markdown-viewer@empiricapps.com",
+      "strict_min_version": "115.0"
+    }
+  },
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "action": {
+    "default_title": "Toggle rendered Markdown",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png"
+    }
+  },
+  "options_ui": {
+    "page": "src/options/options.html",
+    "open_in_tab": false,
+    "browser_style": false
+  },
+  "commands": {
+    "toggle-view": {
+      "description": "Toggle rendered / raw Markdown"
+    }
+  },
+  "permissions": ["storage", "activeTab"],
+  "host_permissions": ["http://*/*", "https://*/*", "file:///*"],
+  "background": {
+    "scripts": ["src/background/service-worker.js"]
+  },
+  "content_scripts": [
+    {
+      "matches": ["http://*/*", "https://*/*", "file:///*"],
+      "run_at": "document_start",
+      "js": ["src/content/early.js"],
+      "css": ["src/content/early.css"]
+    },
+    {
+      "matches": ["http://*/*", "https://*/*", "file:///*"],
+      "run_at": "document_end",
+      "js": ["vendor/marked.min.js", "vendor/dompurify.min.js", "vendor/highlight.min.js", "src/content/content.js"]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["vendor/*", "vendor/**/*", "icons/*", "src/content/page-inject/*"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

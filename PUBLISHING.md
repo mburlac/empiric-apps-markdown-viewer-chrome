@@ -1,4 +1,8 @@
-# Publishing to Chrome Web Store
+# Publishing
+
+Two stores, two zips. Build them with `./scripts/pack.sh` (Chrome) and `./scripts/pack-firefox.sh` (Firefox).
+
+# Chrome Web Store
 
 ## One-time setup
 
@@ -91,3 +95,68 @@ In the store review form you'll be asked to justify each permission:
 3. In the Dev Console → your item → **Package** → upload new zip → submit for review.
 
 Tip: keep a `CHANGELOG.md` so the "What's new" box in the store listing is easy to fill.
+
+---
+
+# Firefox Add-ons (AMO)
+
+## One-time setup
+
+1. Create an AMO developer account: <https://addons.mozilla.org/developers/>.
+   - **Free** — no signup fee.
+   - Requires a Firefox account.
+2. Extension ID is fixed: `markdown-viewer@empiricapps.com` (set in `manifest.firefox.json`). Do not change it after first submission — AMO ties updates to this ID.
+
+## Build the upload package
+
+```bash
+./scripts/pack-firefox.sh
+```
+
+Output: `dist/markdown-viewer-firefox-<version>.zip`. Script stages a build dir where `manifest.firefox.json` is copied as `manifest.json`, then zips it together with `icons/`, `src/`, `vendor/`.
+
+## Differences from the Chrome build
+
+- `browser_specific_settings.gecko` — Firefox extension ID + `strict_min_version: 115` (ESR baseline).
+- `background.scripts` instead of `background.service_worker` — Firefox MV3 service worker support is still flaky as of FF 121; classic background scripts are more reliable.
+- `options_ui` instead of `options_page` — opens settings inside `about:addons` (Firefox convention).
+- `chrome.action.setBadgeTextColor` is feature-gated in the service worker — Firefox doesn't expose it.
+- A banner instructs the user to enable "Access your data for file URLs" in `about:addons` if `file://` content fails to load.
+
+## file:/// permission (user-side)
+
+Firefox does **not** grant `file:///` access automatically, even with the manifest permission. After install, the user must:
+
+1. Open `about:addons` → Markdown Viewer → **Permissions** tab.
+2. Toggle on **Access your data for file URLs**.
+
+Mention this in the AMO listing.
+
+## Listing copy
+
+**Title**: Markdown Viewer
+
+**Summary** (max 250 chars):
+> Render Markdown files beautifully in Firefox — 5 themes, syntax highlighting, TOC, Mermaid, KaTeX. By empiricapps.com.
+
+**Description**: re-use the Chrome detailed description, but replace "Chrome" with "Firefox" and add a final note:
+
+> **File access on Firefox**: to render local `.md` files (`file://`), open `about:addons` → Markdown Viewer → Permissions → enable "Access your data for file URLs".
+
+## Submit
+
+1. Go to <https://addons.mozilla.org/developers/addon/submit/>.
+2. Distribution: **On this site** (listed on AMO).
+3. Upload `dist/markdown-viewer-firefox-<version>.zip` — the validator runs automatically.
+4. License: same as Chrome listing (MIT per `LICENSE`).
+5. Fill in summary, description, categories (Productivity / Developer Tools), screenshots.
+6. Submit for review.
+
+**Review timeline**: first submission is human-reviewed (1–7 days typical). Subsequent updates often pass automated review in minutes if no new permissions are introduced.
+
+## Updates after launch
+
+1. Bump `"version"` in both `manifest.json` **and** `manifest.firefox.json`.
+2. `./scripts/pack-firefox.sh`.
+3. AMO Developer Hub → Markdown Viewer → **Upload New Version**.
+

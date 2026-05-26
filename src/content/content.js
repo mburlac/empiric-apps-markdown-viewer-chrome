@@ -961,7 +961,13 @@
   async function boot() {
     try {
       const [raw, settings] = await Promise.all([getRaw(), getSettings()]);
-      if (!raw || !raw.trim()) { warn('no content available'); return; }
+      if (!raw || !raw.trim()) {
+        warn('no content available');
+        if (location.protocol === 'file:' && navigator.userAgent.includes('Firefox')) {
+          showBanner('Markdown Viewer: enable "Access your data for file URLs" in about:addons to read .md files.');
+        }
+        return;
+      }
       if (typeof marked === 'undefined') return errLog('marked missing');
       if (typeof DOMPurify === 'undefined') return errLog('DOMPurify missing');
 

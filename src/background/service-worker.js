@@ -12,7 +12,9 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.type === 'DETECTED' && sender.tab && sender.tab.id != null) {
     chrome.action.setBadgeText({ tabId: sender.tab.id, text: 'MD' });
     chrome.action.setBadgeBackgroundColor({ tabId: sender.tab.id, color: '#0969da' });
-    chrome.action.setBadgeTextColor({ tabId: sender.tab.id, color: '#ffffff' });
+    if (chrome.action.setBadgeTextColor) {
+      chrome.action.setBadgeTextColor({ tabId: sender.tab.id, color: '#ffffff' });
+    }
   }
 });
 
