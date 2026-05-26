@@ -22,7 +22,8 @@ cp -R icons src vendor "$STAGE/"
   -x "*.DS_Store" "*/.*" \
   >/dev/null)
 
-rm -rf "$STAGE"
-
 echo "Created $OUT"
 ls -lh "$OUT"
+echo ""
+echo "Dev load: about:debugging → Load Temporary Add-on → select"
+echo "  $(pwd)/$STAGE/manifest.json"

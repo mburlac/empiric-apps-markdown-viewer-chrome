@@ -61,6 +61,15 @@
     } catch (e) { errLog('sendMessage failed:', e); return null; }
   }
 
+  async function localFetch() {
+    try {
+      const r = await fetch(location.href);
+      if (!r.ok) { warn('local fetch http', r.status); return null; }
+      const text = await r.text();
+      return text && text.trim() ? text : null;
+    } catch (e) { warn('local fetch failed:', e); return null; }
+  }
+
   async function waitLoadThenRead() {
     if (document.readyState !== 'complete') {
       await new Promise(res => {
@@ -76,9 +85,9 @@
     const r = readBodyText();
     if (r) { log('source:', r.source); return r.text; }
 
-    log('body empty, racing SW fetch and window.load');
+    log('body empty, racing local fetch, SW fetch, and window.load');
     return new Promise(resolve => {
-      let pending = 2;
+      let pending = 3;
       let done = false;
       const settle = (text, src) => {
         if (done) return;
@@ -90,6 +99,7 @@
         }
         if (--pending === 0) resolve(null);
       };
+      localFetch().then(t => settle(t, 'local fetch'));
       swFetch().then(t => settle(t, 'sw fetch'));
       waitLoadThenRead().then(t => settle(t, 'body (after load)'));
     });
