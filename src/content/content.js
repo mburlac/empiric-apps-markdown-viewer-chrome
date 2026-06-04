@@ -52,16 +52,32 @@
     return null;
   }
 
+  const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+  // On a cold start the service worker's first fetch(file://) often throws
+  // "Failed to fetch" before the worker is warm. Retry with backoff: a later
+  // attempt hits an already-running worker and succeeds (same as a manual reload).
   async function swFetch() {
-    try {
-      const res = await chrome.runtime.sendMessage({ type: 'FETCH_TEXT', url: location.href });
-      if (res && res.ok && res.text && res.text.trim()) return res.text;
-      if (res && !res.ok) warn('sw fetch failed:', res.error);
-      return null;
-    } catch (e) { errLog('sendMessage failed:', e); return null; }
+    const delays = [0, 120, 200, 350, 600];
+    for (let i = 0; i < delays.length; i++) {
+      if (delays[i]) await sleep(delays[i]);
+      try {
+        const res = await chrome.runtime.sendMessage({ type: 'FETCH_TEXT', url: location.href });
+        if (res && res.ok && res.text && res.text.trim()) return res.text;
+        if (res && !res.ok) warn('sw fetch attempt', i + 1, 'failed:', res.error);
+      } catch (e) {
+        warn('sendMessage attempt', i + 1, 'failed:', e);
+      }
+    }
+    errLog('sw fetch gave up after', delays.length, 'attempts');
+    return null;
   }
 
   async function localFetch() {
+    // Content-script fetch(file://) is blocked on Chromium (origin "null", CORS) and
+    // only spews console errors. It works on Firefox with file access granted, so
+    // attempt it only there; everywhere else the SW fetch is the file:// path.
+    if (location.protocol === 'file:' && !navigator.userAgent.includes('Firefox')) return null;
     try {
       const r = await fetch(location.href);
       if (!r.ok) { warn('local fetch http', r.status); return null; }
